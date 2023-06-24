@@ -6,8 +6,8 @@ import Loader from 'components/loader';
 import Button from 'components/button';
 
 import fetchImg from './services/fetchImg';
-import './App.css';
 import Notiflix from 'notiflix';
+import { AppContainer, Message } from './App.styled.jsx';
 
 let page = 1;
 
@@ -62,40 +62,42 @@ class App extends Component {
   };
   render() {
     const { totalHits, status, items } = this.state;
+
     if (status === 'idle') {
       return (
-        <div className="app">
+        <AppContainer>
           <Searchbar onSubmit={this.handleSubmit} />
-        </div>
+        </AppContainer>
       );
     }
     if (status === 'pending') {
       return (
-        <div className="app">
+        <AppContainer>
           <Searchbar onSubmit={this.handleSubmit} />
           <ImageGallery page={page} items={this.state.items} />
           <Loader />
           {totalHits > 12 && <Button onClick={this.onNextPage} />}
-        </div>
+        </AppContainer>
       );
     }
     if (status === 'rejected') {
       return (
-        <div className="app">
+        <AppContainer>
           <Searchbar onSubmit={this.handleSubmit} />
-          <p>Something wrong, try later</p>
-        </div>
+          <Message />
+          Something wrong, try later
+        </AppContainer>
       );
     }
     if (status === 'resolved') {
       return (
-        <div className="app">
+        <AppContainer>
           <Searchbar onSubmit={this.handleSubmit} />
           <ImageGallery page={page} items={this.state.items} />
           {totalHits > 12 && totalHits > items.length && (
             <Button onClick={this.onNextPage} />
           )}
-        </div>
+        </AppContainer>
       );
     }
   }

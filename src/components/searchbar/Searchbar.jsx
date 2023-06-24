@@ -2,7 +2,7 @@ import { Component } from 'react';
 import PropTypes from 'prop-types';
 
 import { ImSearch } from 'react-icons/im';
-import './Searchbar.css';
+import { Header, Form, ButtonSearch, Input } from './Searchbar.styled';
 
 class Searchbar extends Component {
   state = {
@@ -23,14 +23,13 @@ class Searchbar extends Component {
     const { inputData } = this.state.inputData;
 
     return (
-      <header className="searchbar">
-        <form className="searchbar__form" onSubmit={this.handleSubmit}>
-          <button type="submit" className="searchbar__button">
+      <Header>
+        <Form onSubmit={this.handleSubmit}>
+          <ButtonSearch type="submit">
             <ImSearch size={25} />
-          </button>
+          </ButtonSearch>
 
-          <input
-            className="searchbar__input"
+          <Input
             name="inputData"
             value={inputData}
             onChange={this.onChangeInput}
@@ -39,8 +38,8 @@ class Searchbar extends Component {
             autoFocus
             placeholder="Search images and photos"
           />
-        </form>
-      </header>
+        </Form>
+      </Header>
     );
   }
 }
