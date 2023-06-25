@@ -9,59 +9,61 @@ import fetchImg from './services/fetchImg';
 import Notiflix from 'notiflix';
 import { AppContainer, Message } from './App.styled.jsx';
 
-let page = 1;
-
 class App extends Component {
   state = {
     inputData: '',
     items: [],
-
+    page: 1,
     status: 'idle',
     totalHits: 0,
   };
 
-  handleSubmit = async inputData => {
-    page = 1;
-    if (inputData.trim() === '') {
-      Notiflix.Notify.info('You cannot search by empty field, try again.');
-      return;
-    } else {
-      try {
-        this.setState({ status: 'pending' });
-        const { totalHits, hits } = await fetchImg(inputData, page);
-        if (hits.length < 1) {
-          this.setState({ status: 'idle' });
-          Notiflix.Notify.failure(
-            'Sorry, there are no images matching your search query. Please try again.'
-          );
-        } else {
-          this.setState({
-            items: hits,
-            inputData,
-            totalHits: totalHits,
-            status: 'resolved',
-          });
-        }
-      } catch (error) {
-        this.setState({ status: 'rejected' });
-      }
+  componentDidUpdate = async (_, prevState) => {
+    const { page, inputData } = this.state;
+    if (page !== prevState.page || inputData !== prevState.inputData) {
+      this.fetchImages();
     }
   };
-  onNextPage = async () => {
-    this.setState({ status: 'pending' });
 
+  handleSubmit = async inputData => {
+    this.setState({
+      items: [],
+      inputData,
+      totalHits: 0,
+    });
+  };
+
+  onNextPage = async () => {
+    this.setState(prevState => ({
+      page: prevState.page + 1,
+    }));
+  };
+
+  fetchImages = async () => {
+    const { inputData, page } = this.state;
+    this.setState({ status: 'pending' });
     try {
-      const { hits } = await fetchImg(this.state.inputData, (page += 1));
+      const { totalHits, hits } = await fetchImg(inputData, page);
+      if (!totalHits) {
+        this.setState({ status: 'idle' });
+        Notiflix.Notify.failure(
+          'Sorry, there are no images matching your search query. Please try again.'
+        );
+        return;
+      }
+
       this.setState(prevState => ({
         items: [...prevState.items, ...hits],
         status: 'resolved',
+        totalHits: totalHits,
       }));
     } catch (error) {
       this.setState({ status: 'rejected' });
     }
   };
+
   render() {
-    const { totalHits, status, items } = this.state;
+    const { totalHits, status, items, page } = this.state;
 
     if (status === 'idle') {
       return (
@@ -76,7 +78,6 @@ class App extends Component {
           <Searchbar onSubmit={this.handleSubmit} />
           <ImageGallery page={page} items={this.state.items} />
           <Loader />
-          {totalHits > 12 && <Button onClick={this.onNextPage} />}
         </AppContainer>
       );
     }
@@ -94,9 +95,7 @@ class App extends Component {
         <AppContainer>
           <Searchbar onSubmit={this.handleSubmit} />
           <ImageGallery page={page} items={this.state.items} />
-          {totalHits > 12 && totalHits > items.length && (
-            <Button onClick={this.onNextPage} />
-          )}
+          {totalHits && items.length && <Button onClick={this.onNextPage} />}
         </AppContainer>
       );
     }

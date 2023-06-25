@@ -1,5 +1,6 @@
 import { Component } from 'react';
 import PropTypes from 'prop-types';
+import Notiflix from 'notiflix';
 
 import { ImSearch } from 'react-icons/im';
 import { Header, Form, ButtonSearch, Input } from './Searchbar.styled';
@@ -15,7 +16,12 @@ class Searchbar extends Component {
 
   handleSubmit = e => {
     e.preventDefault();
-    this.props.onSubmit(this.state.inputData);
+    const query = this.state.inputData.trim();
+    if (!query) {
+      Notiflix.Notify.info('You cannot search by empty field, try again.');
+      return;
+    }
+    this.props.onSubmit(query);
     this.setState({ inputData: '' });
   };
 
