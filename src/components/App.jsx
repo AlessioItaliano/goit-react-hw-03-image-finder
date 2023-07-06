@@ -30,6 +30,7 @@ class App extends Component {
       items: [],
       inputData,
       totalHits: 0,
+      page: 1,
     });
   };
 
